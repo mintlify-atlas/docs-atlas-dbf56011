@@ -5,6 +5,10 @@ description: "Envía un ticket de soporte técnico. También documenta el endpoi
 
 Registra un nuevo ticket de soporte técnico. Este endpoint es invocado por el formulario de soporte del sitio y acepta cuatro categorías de solicitud: `consulta`, `error`, `sugerencia` y `otro`.
 
+<Info>
+  Al igual que `POST /api/submit`, la IP del cliente se captura desde el header `CF-Connecting-IP` de Cloudflare y se almacena en la tabla `soporte` de D1.
+</Info>
+
 ## POST /api/soporte
 
 ### Request
@@ -19,7 +23,7 @@ Registra un nuevo ticket de soporte técnico. Este endpoint es invocado por el f
   Dirección de correo electrónico de contacto. Debe ser una dirección de email válida.
 </ParamField>
 
-<ParamField body="tipo" type="string" required>
+<ParamField body="tipo" type="string">
   Categoría del ticket. Valores aceptados:
 
   - `consulta` — Pregunta o duda general
@@ -34,10 +38,23 @@ Registra un nuevo ticket de soporte técnico. Este endpoint es invocado por el f
 
 ### Responses
 
+<ResponseField name="ok" type="boolean" required>
+  `true` si el ticket fue guardado correctamente, `false` en caso de error.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Presente en respuestas exitosas. Valor: `"Mensaje enviado"`.
+</ResponseField>
+
+<ResponseField name="error" type="string">
+  Presente en respuestas de error. Describe el motivo del fallo.
+</ResponseField>
+
 | Código | Descripción |
 |---|---|
 | `200` | Ticket de soporte enviado correctamente |
-| `4xx` / `5xx` | Error al procesar o guardar el ticket |
+| `400` | Faltan campos obligatorios (`nombre`, `correo` o `mensaje`) |
+| `500` | Error interno del servidor |
 
 ### Ejemplo
 
@@ -53,6 +70,31 @@ curl --request POST \
 ```
 
 </CodeGroup>
+
+<ResponseExample>
+
+```json 200
+{
+  "ok": true,
+  "message": "Mensaje enviado"
+}
+```
+
+```json 400
+{
+  "ok": false,
+  "error": "Campos obligatorios faltantes"
+}
+```
+
+```json 500
+{
+  "ok": false,
+  "error": "Error interno"
+}
+```
+
+</ResponseExample>
 
 ---
 
@@ -72,8 +114,8 @@ No requiere parámetros ni headers de autenticación.
 
 Retorna un arreglo de objetos ticket con los siguientes campos:
 
-<ResponseField name="fecha" type="string" required>
-  Timestamp de cuando se registró el ticket. Formato ISO 8601.
+<ResponseField name="id" type="number" required>
+  Identificador único autoincremental del ticket en la base de datos.
 </ResponseField>
 
 <ResponseField name="nombre" type="string" required>
@@ -90,6 +132,10 @@ Retorna un arreglo de objetos ticket con los siguientes campos:
 
 <ResponseField name="mensaje" type="string" required>
   Contenido del ticket enviado.
+</ResponseField>
+
+<ResponseField name="fecha" type="string" required>
+  Timestamp de cuando se registró el ticket. Formato ISO 8601.
 </ResponseField>
 
 ### Códigos de respuesta
@@ -115,20 +161,28 @@ curl --request GET \
 ```json 200
 [
   {
-    "fecha": "2026-03-17T15:00:00.000Z",
+    "id": 5,
     "nombre": "Ana Torres",
     "correo": "ana@ejemplo.com",
     "tipo": "error",
-    "mensaje": "La página de inicio no carga correctamente en Safari"
+    "mensaje": "La página de inicio no carga correctamente en Safari",
+    "fecha": "2026-03-17T15:00:00.000Z"
   },
   {
-    "fecha": "2026-03-16T09:45:00.000Z",
+    "id": 4,
     "nombre": "Roberto Díaz",
     "correo": "roberto@ejemplo.com",
     "tipo": "sugerencia",
-    "mensaje": "Sería útil agregar un chat en tiempo real"
+    "mensaje": "Sería útil agregar un chat en tiempo real",
+    "fecha": "2026-03-16T09:45:00.000Z"
   }
 ]
+```
+
+```json 500
+{
+  "error": "Error consultando soporte"
+}
 ```
 
 </ResponseExample>

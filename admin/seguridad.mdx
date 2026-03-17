@@ -101,3 +101,33 @@ CREATE TABLE solicitudes (
 <Note>
   Cloudflare D1 es SQLite en el edge. Los tipos de columna en SQLite son flexibles — `TEXT` puede almacenar cualquier cadena, incluidos timestamps ISO 8601. No existe un tipo `DATETIME` nativo que D1 valide automáticamente.
 </Note>
+
+## Esquema de la tabla soporte
+
+La tabla `soporte` almacena los tickets enviados a través del formulario de soporte (`POST /api/soporte`).
+
+```sql
+CREATE TABLE soporte (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre   TEXT    NOT NULL,
+  correo   TEXT    NOT NULL,
+  tipo     TEXT,
+  mensaje  TEXT    NOT NULL,
+  fecha    TEXT    NOT NULL,
+  ip       TEXT
+);
+```
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `id` | `INTEGER` | Clave primaria autoincremental |
+| `nombre` | `TEXT` | Nombre del remitente |
+| `correo` | `TEXT` | Correo electrónico de contacto |
+| `tipo` | `TEXT` | Categoría del ticket: `consulta`, `error`, `sugerencia` u `otro` (puede ser `NULL`) |
+| `mensaje` | `TEXT` | Contenido del mensaje de soporte |
+| `fecha` | `TEXT` | Timestamp ISO 8601 generado en el servidor |
+| `ip` | `TEXT` | IP del cliente obtenida de `CF-Connecting-IP` (puede ser `NULL`) |
+
+<Note>
+  El campo `ip` se almacena internamente pero **no es retornado** por `GET /api/admin-soporte`. La consulta SQL solo selecciona: `id`, `nombre`, `correo`, `tipo`, `mensaje`, `fecha`.
+</Note>

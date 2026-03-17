@@ -18,15 +18,15 @@ Utiliza el formulario de soporte para:
 
 ## Campos del formulario de soporte
 
-<ParamField path="body.nombre" type="string" required>
+<ParamField body="nombre" type="string" required>
   Tu nombre completo. Permite al equipo identificarte en la respuesta.
 </ParamField>
 
-<ParamField path="body.correo" type="string" required>
+<ParamField body="correo" type="string" required>
   Dirección de correo electrónico. La respuesta del equipo se envía a esta dirección.
 </ParamField>
 
-<ParamField path="body.tipo" type="string" required>
+<ParamField body="tipo" type="string" required>
   Categoría del mensaje. Opciones disponibles:
   - `consulta` — pregunta general sobre ServiTec
   - `error` — problema técnico encontrado en el sitio
@@ -34,7 +34,7 @@ Utiliza el formulario de soporte para:
   - `otro` — comunicación que no encaja en las categorías anteriores
 </ParamField>
 
-<ParamField path="body.mensaje" type="string" required>
+<ParamField body="mensaje" type="string" required>
   Descripción detallada del motivo del contacto. Para reportes de error, incluye el nombre de la página, lo que intentabas hacer y el mensaje de error que apareció.
 </ParamField>
 
