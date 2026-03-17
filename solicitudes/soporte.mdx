@@ -1,0 +1,59 @@
+---
+title: "Centro de soporte"
+description: "Formulario de soporte para consultas, reporte de errores del sitio y sugerencias dirigidas al equipo ServiTec Pmá."
+---
+
+El centro de soporte de ServiTec está disponible para clientes y visitantes que necesiten hacer una pregunta, reportar un problema con el sitio web o enviar una sugerencia al equipo.
+
+Este canal es diferente al formulario de solicitud de servicio. El soporte está orientado a comunicación con el equipo, no a solicitar una visita técnica.
+
+## Cuándo usar el formulario de soporte
+
+Utiliza el formulario de soporte para:
+
+- **Consultas generales**: preguntas sobre los servicios, precios, proceso o cobertura geográfica
+- **Errores del sitio**: si encuentras un problema técnico en el sitio web (formularios que no funcionan, páginas con error, contenido incorrecto)
+- **Sugerencias**: ideas para mejorar el servicio o la plataforma
+- **Otros**: cualquier comunicación que no corresponda a una solicitud de servicio técnico
+
+## Campos del formulario de soporte
+
+<ParamField path="body.nombre" type="string" required>
+  Tu nombre completo. Permite al equipo identificarte en la respuesta.
+</ParamField>
+
+<ParamField path="body.correo" type="string" required>
+  Dirección de correo electrónico. La respuesta del equipo se envía a esta dirección.
+</ParamField>
+
+<ParamField path="body.tipo" type="string" required>
+  Categoría del mensaje. Opciones disponibles:
+  - `consulta` — pregunta general sobre ServiTec
+  - `error` — problema técnico encontrado en el sitio
+  - `sugerencia` — propuesta de mejora
+  - `otro` — comunicación que no encaja en las categorías anteriores
+</ParamField>
+
+<ParamField path="body.mensaje" type="string" required>
+  Descripción detallada del motivo del contacto. Para reportes de error, incluye el nombre de la página, lo que intentabas hacer y el mensaje de error que apareció.
+</ParamField>
+
+## Preguntas frecuentes
+
+<AccordionGroup>
+  <Accordion title="¿Cuándo usar el formulario de soporte?">
+    El formulario de soporte es adecuado cuando necesitas comunicarte con el equipo ServiTec por razones que no requieren una visita técnica. Si tienes dudas sobre el proceso de servicio, quieres saber más sobre una disciplina específica, o simplemente quieres enviar un comentario, este es el canal correcto.
+
+    Para solicitar una visita técnica o iniciar un proyecto, utiliza el formulario de solicitud de servicio en su lugar.
+  </Accordion>
+  <Accordion title="¿Cuánto tardan en responder?">
+    El equipo ServiTec revisa los mensajes de soporte durante el horario de atención. El tiempo de respuesta habitual es de 1 a 2 días hábiles para consultas generales. Los reportes de error en el sitio web se atienden con mayor prioridad.
+
+    No se garantiza respuesta inmediata. Si tu situación es urgente, inclúyelo claramente en el campo de mensaje.
+  </Accordion>
+  <Accordion title="¿Puedo reportar errores técnicos del sitio?">
+    Sí. Si encuentras que un formulario no envía, una página muestra un error, un enlace está roto o cualquier otro problema funcional en el sitio web de ServiTec Pmá, puedes reportarlo seleccionando la categoría **error** en el campo tipo.
+
+    Incluye en tu mensaje: el nombre de la página o sección con el problema, lo que intentabas hacer cuando ocurrió el error, y el mensaje exacto que apareció en pantalla si lo hay. Esta información ayuda al equipo a reproducir y resolver el problema más rápido.
+  </Accordion>
+</AccordionGroup>

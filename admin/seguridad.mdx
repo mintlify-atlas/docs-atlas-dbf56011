@@ -1,0 +1,103 @@
+---
+title: "Seguridad y configuración"
+description: "Modelo de seguridad actual de ServiTec Pmá: variable de entorno ADMIN_PASSWORD, autenticación client-side, binding de Cloudflare D1 y esquema de base de datos."
+---
+
+Esta página documenta la configuración de seguridad del sistema y cómo están conectados los componentes de Cloudflare Workers con la base de datos D1.
+
+## Variable de entorno ADMIN_PASSWORD
+
+La contraseña del panel de administración se almacena como variable de entorno en Cloudflare Pages, no en el código fuente.
+
+**Pasos para configurarla:**
+
+<Steps>
+  <Step title="Abrir el proyecto en Cloudflare Pages">
+    En el [dashboard de Cloudflare](https://dash.cloudflare.com), selecciona tu proyecto de Pages.
+  </Step>
+  <Step title="Ir a Environment Variables">
+    Navega a **Settings → Environment Variables**.
+  </Step>
+  <Step title="Agregar ADMIN_PASSWORD">
+    Haz clic en **Add variable**, ingresa `ADMIN_PASSWORD` como nombre y el valor de tu contraseña. Activa la opción **Encrypt** para que el valor quede cifrado en el dashboard.
+  </Step>
+  <Step title="Guardar y redesplegar">
+    Guarda los cambios. Realiza un nuevo despliegue para que las funciones accedan al valor actualizado mediante `context.env.ADMIN_PASSWORD`.
+  </Step>
+</Steps>
+
+<Tip>
+  Configura la variable en ambos entornos (**Production** y **Preview**) si necesitas probar el panel en entornos de preview de Cloudflare Pages.
+</Tip>
+
+## Modelo de autenticación actual
+
+<Warning>
+  El sistema de autenticación actual es **únicamente client-side**. Los endpoints `GET /api/admin` y `GET /api/admin-soporte` no validan ningún token ni credencial en el servidor. Cualquier cliente que conozca las URLs puede consultar los datos directamente, sin pasar por el formulario de login.
+
+  Para producción, se recomienda agregar validación server-side en esos endpoints, por ejemplo verificando un header de autorización contra un secreto almacenado en las variables de entorno.
+</Warning>
+
+El flujo actual funciona de la siguiente manera:
+
+1. `POST /api/login` compara la contraseña recibida con `context.env.ADMIN_PASSWORD`.
+2. Si coincide, retorna el token estático `"servitec-admin"`.
+3. El frontend almacena ese token en `localStorage.admin_token`.
+4. Al cargar `/admin/panel.html`, el frontend verifica el token con `localStorage.getItem("admin_token") !== "servitec-admin"` y redirige si no coincide.
+5. Los endpoints de datos no realizan ninguna comprobación adicional.
+
+## Cloudflare D1: binding DB
+
+Las funciones acceden a la base de datos a través del binding `DB`, disponible en `context.env.DB`. Este binding se configura en Cloudflare Pages → **Settings → Functions → D1 database bindings**.
+
+| Propiedad | Valor |
+|---|---|
+| Nombre del binding | `DB` |
+| Tipo | Cloudflare D1 (SQLite) |
+| Acceso en Worker | `context.env.DB` |
+
+**Uso típico en una función:**
+
+```javascript
+// Insertar un registro
+await context.env.DB.prepare(
+  `INSERT INTO solicitudes (nombre, telefono, correo, mensaje, fecha, ip)
+   VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+).bind(nombre, telefono, correo, mensaje, fecha, ip).run()
+
+// Consultar registros
+const { results } = await context.env.DB.prepare(
+  `SELECT id, nombre, telefono, correo, mensaje, fecha
+   FROM solicitudes ORDER BY fecha DESC LIMIT 100`
+).all()
+```
+
+## Esquema de la tabla solicitudes
+
+La tabla `solicitudes` almacena las solicitudes de servicio enviadas a través del formulario de contacto (`POST /api/submit`).
+
+```sql
+CREATE TABLE solicitudes (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre   TEXT    NOT NULL,
+  telefono TEXT    NOT NULL,
+  correo   TEXT    NOT NULL,
+  mensaje  TEXT,
+  fecha    TEXT    NOT NULL,
+  ip       TEXT
+);
+```
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `id` | `INTEGER` | Clave primaria autoincremental |
+| `nombre` | `TEXT` | Nombre del solicitante |
+| `telefono` | `TEXT` | Teléfono de contacto |
+| `correo` | `TEXT` | Correo electrónico |
+| `mensaje` | `TEXT` | Mensaje o descripción del servicio (puede ser `NULL`) |
+| `fecha` | `TEXT` | Timestamp ISO 8601 generado en el servidor |
+| `ip` | `TEXT` | IP del cliente obtenida de `CF-Connecting-IP` (puede ser `NULL`) |
+
+<Note>
+  Cloudflare D1 es SQLite en el edge. Los tipos de columna en SQLite son flexibles — `TEXT` puede almacenar cualquier cadena, incluidos timestamps ISO 8601. No existe un tipo `DATETIME` nativo que D1 valide automáticamente.
+</Note>

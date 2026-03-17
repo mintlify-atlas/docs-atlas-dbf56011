@@ -1,0 +1,134 @@
+---
+title: "POST /api/soporte"
+description: "Envía un ticket de soporte técnico. También documenta el endpoint compañero GET /api/admin-soporte para consultar los tickets desde el panel de administración."
+---
+
+Registra un nuevo ticket de soporte técnico. Este endpoint es invocado por el formulario de soporte del sitio y acepta cuatro categorías de solicitud: `consulta`, `error`, `sugerencia` y `otro`.
+
+## POST /api/soporte
+
+### Request
+
+**Content-Type:** `multipart/form-data`
+
+<ParamField body="nombre" type="string" required>
+  Nombre completo de la persona que envía el ticket.
+</ParamField>
+
+<ParamField body="correo" type="string" required>
+  Dirección de correo electrónico de contacto. Debe ser una dirección de email válida.
+</ParamField>
+
+<ParamField body="tipo" type="string" required>
+  Categoría del ticket. Valores aceptados:
+
+  - `consulta` — Pregunta o duda general
+  - `error` — Reporte de fallo o problema técnico
+  - `sugerencia` — Propuesta de mejora
+  - `otro` — Cualquier otro tipo de solicitud
+</ParamField>
+
+<ParamField body="mensaje" type="string" required>
+  Descripción detallada del problema, consulta o sugerencia.
+</ParamField>
+
+### Responses
+
+| Código | Descripción |
+|---|---|
+| `200` | Ticket de soporte enviado correctamente |
+| `4xx` / `5xx` | Error al procesar o guardar el ticket |
+
+### Ejemplo
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://servitecpma.com/api/soporte \
+  --form "nombre=Ana Torres" \
+  --form "correo=ana@ejemplo.com" \
+  --form "tipo=error" \
+  --form "mensaje=La página de inicio no carga correctamente en Safari"
+```
+
+</CodeGroup>
+
+---
+
+## GET /api/admin-soporte
+
+Retorna todos los tickets de soporte almacenados. Este endpoint es consumido por la vista **Ver Soporte** del panel de administración.
+
+<Warning>
+  Al igual que `GET /api/admin`, este endpoint **no tiene autenticación server-side**. Cualquier cliente puede acceder a los datos directamente sin presentar un token.
+</Warning>
+
+### Request
+
+No requiere parámetros ni headers de autenticación.
+
+### Response
+
+Retorna un arreglo de objetos ticket con los siguientes campos:
+
+<ResponseField name="fecha" type="string" required>
+  Timestamp de cuando se registró el ticket. Formato ISO 8601.
+</ResponseField>
+
+<ResponseField name="nombre" type="string" required>
+  Nombre de la persona que envió el ticket.
+</ResponseField>
+
+<ResponseField name="correo" type="string" required>
+  Correo electrónico de contacto del remitente.
+</ResponseField>
+
+<ResponseField name="tipo" type="string" required>
+  Categoría del ticket: `consulta`, `error`, `sugerencia` o `otro`.
+</ResponseField>
+
+<ResponseField name="mensaje" type="string" required>
+  Contenido del ticket enviado.
+</ResponseField>
+
+### Códigos de respuesta
+
+| Código | Descripción |
+|---|---|
+| `200` | Arreglo de tickets retornado correctamente |
+| `500` | Error al consultar la base de datos |
+
+### Ejemplo
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url https://servitecpma.com/api/admin-soporte
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 200
+[
+  {
+    "fecha": "2026-03-17T15:00:00.000Z",
+    "nombre": "Ana Torres",
+    "correo": "ana@ejemplo.com",
+    "tipo": "error",
+    "mensaje": "La página de inicio no carga correctamente en Safari"
+  },
+  {
+    "fecha": "2026-03-16T09:45:00.000Z",
+    "nombre": "Roberto Díaz",
+    "correo": "roberto@ejemplo.com",
+    "tipo": "sugerencia",
+    "mensaje": "Sería útil agregar un chat en tiempo real"
+  }
+]
+```
+
+</ResponseExample>

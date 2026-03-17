@@ -1,0 +1,58 @@
+---
+title: "Cómo solicitar una evaluación"
+description: "Guía paso a paso para enviar una solicitud de servicio a ServiTec Pmá a través del formulario en línea."
+---
+
+Para iniciar el proceso de servicio con ServiTec, debes completar el formulario de solicitud en línea. Este formulario permite que el equipo técnico conozca tu situación antes de contactarte para agendar la evaluación.
+
+## Pasos para enviar tu solicitud
+
+<Steps>
+  <Step title="Ingresa al formulario de solicitud">
+    Navega a la sección **Solicitud de Servicio** en el sitio web de ServiTec Pmá. El formulario está disponible en la página principal bajo la opción de solicitar servicio.
+  </Step>
+  <Step title="Completa tus datos de contacto">
+    Ingresa tu nombre completo, número de teléfono y correo electrónico. Estos datos son obligatorios y permiten que el equipo te contacte para coordinar la visita.
+  </Step>
+  <Step title="Describe el problema">
+    En el campo **Mensaje**, describe el problema o la necesidad técnica que tienes. Incluye detalles como el tipo de equipo o instalación afectada, cuándo comenzó el problema y cualquier síntoma observable. Este campo es opcional pero facilita el proceso.
+  </Step>
+  <Step title="Envía la solicitud">
+    Haz clic en **Enviar solicitud**. Recibirás una confirmación en pantalla de que la solicitud fue recibida correctamente.
+  </Step>
+</Steps>
+
+## Campos del formulario
+
+<ParamField path="body.nombre" type="string" required>
+  Tu nombre completo. Utilizado para identificarte durante el proceso de servicio.
+</ParamField>
+
+<ParamField path="body.telefono" type="string" required>
+  Número de teléfono de contacto. El técnico lo utilizará para coordinar la visita.
+</ParamField>
+
+<ParamField path="body.correo" type="string" required>
+  Dirección de correo electrónico. Se utiliza para enviarte confirmaciones y el detalle de la cotización.
+</ParamField>
+
+<ParamField path="body.mensaje" type="string">
+  Descripción del problema o servicio requerido. Incluir detalles facilita el diagnóstico preliminar y agiliza la visita técnica.
+</ParamField>
+
+<Note>
+  Todos los campos excepto el mensaje son obligatorios. Sin nombre, teléfono y correo, el equipo no puede contactarte para agendar la evaluación.
+</Note>
+
+## ¿Qué pasa después?
+
+Una vez que el equipo de ServiTec recibe tu solicitud:
+
+1. Un técnico revisa los detalles del formulario
+2. Se pone en contacto contigo por teléfono o correo para confirmar disponibilidad
+3. Se agenda la **Evaluación Técnica Inicial** en el lugar del problema
+4. La evaluación tiene un costo de **$20** y es el punto de partida formal del servicio
+
+<Warning>
+  El tiempo de respuesta a una solicitud puede variar según la disponibilidad del equipo y el volumen de solicitudes activas. Para casos urgentes, es recomendable incluir una descripción clara de la situación en el campo de mensaje e indicar el nivel de urgencia. ServiTec no garantiza tiempos de respuesta inmediatos para solicitudes enviadas fuera del horario de atención.
+</Warning>

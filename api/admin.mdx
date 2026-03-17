@@ -1,0 +1,95 @@
+---
+title: "GET /api/admin"
+description: "Obtiene las últimas 100 solicitudes de servicio almacenadas en D1, ordenadas por fecha descendente."
+---
+
+Retorna un arreglo JSON con las solicitudes de servicio más recientes registradas en la tabla `solicitudes` de Cloudflare D1. Este endpoint es consumido por la vista **Ver Solicitudes** del panel de administración.
+
+<Warning>
+  **Este endpoint no tiene autenticación server-side.** Cualquier cliente que realice una petición `GET` a `/api/admin` recibirá los datos sin necesidad de presentar ningún token o credencial. La protección actual es únicamente client-side: el panel de administración en `/admin/panel.html` verifica la presencia del token `"servitec-admin"` en `localStorage` antes de realizar la petición, pero esta verificación puede ser fácilmente omitida con herramientas como `curl`.
+</Warning>
+
+## Request
+
+No requiere parámetros ni headers de autenticación.
+
+## Response
+
+Retorna un arreglo de objetos `solicitud`. Máximo 100 registros, ordenados por `fecha` descendente.
+
+<ResponseField name="id" type="number" required>
+  Identificador único autoincremental de la solicitud en la base de datos.
+</ResponseField>
+
+<ResponseField name="nombre" type="string" required>
+  Nombre completo del solicitante.
+</ResponseField>
+
+<ResponseField name="telefono" type="string" required>
+  Número de teléfono del solicitante.
+</ResponseField>
+
+<ResponseField name="correo" type="string" required>
+  Dirección de correo electrónico del solicitante.
+</ResponseField>
+
+<ResponseField name="mensaje" type="string">
+  Mensaje o descripción del servicio solicitado. Puede ser `null` si no fue proporcionado.
+</ResponseField>
+
+<ResponseField name="fecha" type="string" required>
+  Timestamp ISO 8601 de cuando se registró la solicitud. Ejemplo: `"2026-03-17T14:30:00.000Z"`.
+</ResponseField>
+
+### Códigos de respuesta
+
+| Código | Descripción |
+|---|---|
+| `200` | Arreglo de solicitudes retornado correctamente |
+| `500` | Error al consultar la base de datos D1 |
+
+## Ejemplo
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url https://servitecpma.com/api/admin
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 200
+[
+  {
+    "id": 42,
+    "nombre": "María García",
+    "telefono": "+52 55 9876 5432",
+    "correo": "maria@ejemplo.com",
+    "mensaje": "Reparación de impresora de red",
+    "fecha": "2026-03-17T14:30:00.000Z"
+  },
+  {
+    "id": 41,
+    "nombre": "Carlos López",
+    "telefono": "+52 55 1111 2222",
+    "correo": "carlos@ejemplo.com",
+    "mensaje": null,
+    "fecha": "2026-03-17T10:15:00.000Z"
+  }
+]
+```
+
+```json 500
+{
+  "error": "Error consultando base"
+}
+```
+
+</ResponseExample>
+
+<Note>
+  El campo `ip` que se almacena al momento de registrar una solicitud (`POST /api/submit`) **no es retornado** por este endpoint. La consulta SQL solo selecciona: `id`, `nombre`, `telefono`, `correo`, `mensaje`, `fecha`.
+</Note>

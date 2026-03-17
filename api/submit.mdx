@@ -1,0 +1,105 @@
+---
+title: "POST /api/submit"
+description: "Envía una solicitud de servicio desde el formulario de contacto. Los datos se guardan en la tabla solicitudes de Cloudflare D1."
+---
+
+Guarda una nueva solicitud de servicio en la base de datos D1. Este endpoint es invocado por el formulario de contacto público del sitio.
+
+<Info>
+  La IP del cliente se captura automáticamente desde el header `CF-Connecting-IP` proporcionado por Cloudflare. Si el header no está presente, se almacena el valor `"unknown"`.
+</Info>
+
+## Request
+
+**Content-Type:** `multipart/form-data`
+
+<ParamField body="nombre" type="string" required>
+  Nombre completo del solicitante.
+</ParamField>
+
+<ParamField body="telefono" type="string" required>
+  Número de teléfono de contacto del solicitante.
+</ParamField>
+
+<ParamField body="correo" type="string" required>
+  Dirección de correo electrónico del solicitante.
+</ParamField>
+
+<ParamField body="mensaje" type="string">
+  Descripción del servicio solicitado o mensaje adicional. Campo opcional.
+</ParamField>
+
+## Responses
+
+<ResponseField name="ok" type="boolean" required>
+  `true` si la solicitud fue guardada correctamente, `false` en caso de error.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Presente en respuestas exitosas. Valor: `"Solicitud guardada"`.
+</ResponseField>
+
+<ResponseField name="error" type="string">
+  Presente en respuestas de error. Describe el motivo del fallo.
+</ResponseField>
+
+### Códigos de respuesta
+
+| Código | Descripción |
+|---|---|
+| `200` | Solicitud guardada correctamente |
+| `400` | Faltan campos obligatorios (`nombre`, `telefono` o `correo`) |
+| `500` | Error interno del servidor |
+
+## Ejemplo
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://servitecpma.com/api/submit \
+  --form "nombre=Juan Pérez" \
+  --form "telefono=+52 55 1234 5678" \
+  --form "correo=juan@ejemplo.com" \
+  --form "mensaje=Necesito mantenimiento preventivo de equipo de cómputo"
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 200
+{
+  "ok": true,
+  "message": "Solicitud guardada"
+}
+```
+
+```json 400
+{
+  "ok": false,
+  "error": "Campos obligatorios faltantes"
+}
+```
+
+```json 500
+{
+  "ok": false,
+  "error": "Error interno"
+}
+```
+
+</ResponseExample>
+
+## Almacenamiento en D1
+
+Cada solicitud exitosa inserta una fila en la tabla `solicitudes` de Cloudflare D1 con los siguientes campos:
+
+| Columna | Valor |
+|---|---|
+| `nombre` | Valor del campo `nombre` del formulario |
+| `telefono` | Valor del campo `telefono` del formulario |
+| `correo` | Valor del campo `correo` del formulario |
+| `mensaje` | Valor del campo `mensaje` del formulario |
+| `fecha` | Timestamp ISO 8601 generado en el servidor (`new Date().toISOString()`) |
+| `ip` | IP del cliente obtenida del header `CF-Connecting-IP` |

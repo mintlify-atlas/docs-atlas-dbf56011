@@ -1,0 +1,66 @@
+---
+title: "Panel de administración"
+description: "Guía de uso del panel de administración de ServiTec Pmá. Cómo acceder, consultar solicitudes de servicio y tickets de soporte."
+---
+
+El panel de administración se encuentra en `/admin/panel.html` y permite consultar las solicitudes de servicio recibidas y los tickets de soporte enviados por los usuarios.
+
+## Cómo acceder
+
+<Steps>
+  <Step title="Navegar a la página de login">
+    Abre tu navegador y ve a `/admin/login.html`. Verás un formulario para ingresar la contraseña de administrador.
+  </Step>
+  <Step title="Ingresar la contraseña">
+    Escribe el valor de `ADMIN_PASSWORD` configurado en Cloudflare Pages. Al enviar el formulario, se realiza una petición `POST /api/login`. Si la contraseña es correcta, el token `"servitec-admin"` se guarda en `localStorage` bajo la clave `admin_token`.
+  </Step>
+  <Step title="Acceder al panel">
+    Tras la autenticación exitosa, el navegador redirige a `/admin/panel.html`. El panel verifica que `localStorage.getItem("admin_token") === "servitec-admin"`. Si el token no está presente o es incorrecto, redirige automáticamente de vuelta a `/admin/login.html`.
+  </Step>
+  <Step title="Seleccionar una vista">
+    Dentro del panel, elige entre dos vistas:
+
+    - **Ver Solicitudes** — muestra las solicitudes del formulario de contacto
+    - **Ver Soporte** — muestra los tickets de soporte técnico
+  </Step>
+</Steps>
+
+## Vista: Ver Solicitudes
+
+Haz clic en **Ver Solicitudes** para consultar las solicitudes de servicio enviadas por clientes. El panel realiza una petición a `GET /api/admin` y renderiza los resultados en una tabla con las siguientes columnas:
+
+| Columna | Descripción |
+|---|---|
+| `fecha` | Fecha y hora en que se registró la solicitud |
+| `nombre` | Nombre completo del solicitante |
+| `telefono` | Teléfono de contacto |
+| `correo` | Correo electrónico del solicitante |
+| `mensaje` | Descripción del servicio solicitado |
+| WhatsApp | Enlace directo para contactar al cliente por WhatsApp usando su número de teléfono |
+
+<Tip>
+  Haz clic en el enlace de WhatsApp de cada fila para abrir una conversación directa con el cliente en WhatsApp. El enlace se genera automáticamente a partir del número de teléfono almacenado.
+</Tip>
+
+## Vista: Ver Soporte
+
+Haz clic en **Ver Soporte** para consultar los tickets de soporte técnico. El panel realiza una petición a `GET /api/admin-soporte` y renderiza los resultados en una tabla con las siguientes columnas:
+
+| Columna | Descripción |
+|---|---|
+| `fecha` | Fecha y hora en que se envió el ticket |
+| `nombre` | Nombre del remitente |
+| `correo` | Correo electrónico del remitente |
+| `tipo` | Categoría del ticket (`consulta`, `error`, `sugerencia`, `otro`) |
+| `mensaje` | Contenido del ticket |
+
+## Cerrar sesión
+
+Haz clic en el botón **Logout** del panel para cerrar la sesión. Esta acción:
+
+1. Elimina la clave `admin_token` de `localStorage` mediante `localStorage.removeItem("admin_token")`.
+2. Redirige al navegador a `../index.html` (la página principal del sitio).
+
+<Note>
+  Cerrar la pestaña del navegador **no cierra la sesión**. El token permanece en `localStorage` hasta que se haga clic explícitamente en Logout o se limpie manualmente el almacenamiento del navegador.
+</Note>

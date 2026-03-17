@@ -1,0 +1,88 @@
+---
+title: "POST /api/login"
+description: "Autenticación del panel de administración. Valida la contraseña contra la variable de entorno ADMIN_PASSWORD y retorna un token estático."
+---
+
+Valida la contraseña del administrador y retorna un token de acceso estático. Este endpoint es invocado por el formulario en `/admin/login.html`.
+
+<Warning>
+  El token retornado es una cadena estática (`"servitec-admin"`), no un JWT ni un token generado dinámicamente. Cualquier persona que conozca este valor puede simular estar autenticada en el panel. Trata el valor de `ADMIN_PASSWORD` como un secreto y no lo expongas en código fuente.
+</Warning>
+
+## Request
+
+**Content-Type:** `application/json`
+
+<ParamField body="password" type="string" required>
+  Contraseña del administrador. Debe coincidir exactamente con el valor de la variable de entorno `ADMIN_PASSWORD`.
+</ParamField>
+
+## Responses
+
+<ResponseField name="ok" type="boolean" required>
+  `true` si la contraseña es correcta, `false` si es incorrecta.
+</ResponseField>
+
+<ResponseField name="token" type="string">
+  Presente solo en respuestas exitosas (`200`). Valor fijo: `"servitec-admin"`. El frontend lo almacena en `localStorage` bajo la clave `admin_token`.
+</ResponseField>
+
+### Códigos de respuesta
+
+| Código | Descripción |
+|---|---|
+| `200` | Contraseña correcta — token retornado |
+| `401` | Contraseña incorrecta |
+
+## Ejemplo
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://servitecpma.com/api/login \
+  --header "Content-Type: application/json" \
+  --data '{ "password": "tu_contraseña_aqui" }'
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 200
+{
+  "ok": true,
+  "token": "servitec-admin"
+}
+```
+
+```json 401
+{
+  "ok": false
+}
+```
+
+</ResponseExample>
+
+## Configuración de ADMIN_PASSWORD
+
+La contraseña se configura como variable de entorno en Cloudflare Pages:
+
+<Steps>
+  <Step title="Ir a Cloudflare Pages">
+    En el dashboard de Cloudflare, selecciona tu proyecto de Pages (ServiTec Pmá).
+  </Step>
+  <Step title="Abrir configuración">
+    Navega a **Settings → Environment Variables**.
+  </Step>
+  <Step title="Agregar la variable">
+    Haz clic en **Add variable**. Ingresa `ADMIN_PASSWORD` como nombre y tu contraseña segura como valor. Marca la opción **Encrypt** para que el valor no sea visible en el dashboard después de guardarlo.
+  </Step>
+  <Step title="Redeploy">
+    Guarda los cambios y realiza un nuevo despliegue para que las funciones puedan acceder a la variable mediante `context.env.ADMIN_PASSWORD`.
+  </Step>
+</Steps>
+
+<Tip>
+  Configura la variable tanto para el entorno de **Production** como de **Preview** si necesitas probar el panel de administración en entornos de preview.
+</Tip>

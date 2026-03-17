@@ -1,0 +1,66 @@
+---
+title: "API Overview"
+description: "Descripción general de la API serverless de ServiTec Pmá, construida sobre Cloudflare Workers y respaldada por Cloudflare D1 SQLite."
+---
+
+La API de ServiTec Pmá es una API serverless construida con **Cloudflare Workers** (Pages Functions). Cada endpoint corre como una función independiente en el edge de Cloudflare. Los datos se persisten en **Cloudflare D1**, una base de datos SQLite gestionada por Cloudflare.
+
+Todos los endpoints retornan respuestas en formato **JSON** con el header `Content-Type: application/json`.
+
+## Endpoints disponibles
+
+<CardGroup cols={2}>
+  <Card title="POST /api/submit" icon="paper-plane" href="/api/submit">
+    Envía una solicitud de servicio desde el formulario de contacto. Guarda los datos del cliente en la tabla `solicitudes` de D1.
+  </Card>
+  <Card title="POST /api/login" icon="lock" href="/api/login">
+    Autenticación del panel de administración. Valida la contraseña contra la variable de entorno `ADMIN_PASSWORD`.
+  </Card>
+  <Card title="GET /api/admin" icon="table" href="/api/admin">
+    Obtiene las últimas 100 solicitudes de servicio. Requiere acceso administrativo.
+  </Card>
+  <Card title="POST /api/soporte" icon="headset" href="/api/soporte">
+    Envía un ticket de soporte técnico (consulta, error, sugerencia u otro).
+  </Card>
+  <Card title="GET /api/admin-soporte" icon="inbox" href="/api/soporte#get-apiadmin-soporte">
+    Obtiene todos los tickets de soporte. Documentado junto a POST /api/soporte.
+  </Card>
+</CardGroup>
+
+## Autenticación
+
+El sistema de autenticación utiliza un token estático almacenado en `localStorage` del navegador.
+
+<Steps>
+  <Step title="Iniciar sesión">
+    Realiza una petición `POST /api/login` con la contraseña del administrador. Si la contraseña es correcta, la respuesta incluye `{ "ok": true, "token": "servitec-admin" }`.
+  </Step>
+  <Step title="Almacenar el token">
+    El panel de administración guarda el valor `"servitec-admin"` en `localStorage` bajo la clave `admin_token`.
+  </Step>
+  <Step title="Verificación client-side">
+    Al cargar `/admin/panel.html`, el frontend verifica que `localStorage.getItem("admin_token") === "servitec-admin"`. Si no coincide, redirige a `/admin/login.html`.
+  </Step>
+</Steps>
+
+<Warning>
+  La verificación del token es **únicamente client-side**. Los endpoints `GET /api/admin` y `GET /api/admin-soporte` no realizan ninguna comprobación de autenticación en el servidor. Cualquier cliente que conozca la URL puede acceder a los datos directamente.
+</Warning>
+
+## Variable de entorno requerida
+
+<Info>
+  La variable `ADMIN_PASSWORD` debe configurarse en **Cloudflare Pages → Settings → Environment Variables**. Sin esta variable, el endpoint `POST /api/login` no podrá autenticar a ningún usuario.
+</Info>
+
+| Variable | Descripción | Requerida |
+|---|---|---|
+| `ADMIN_PASSWORD` | Contraseña del panel de administración | Sí |
+| `DB` | Binding de Cloudflare D1 (se configura en bindings, no como variable) | Sí |
+
+## Infraestructura
+
+- **Runtime:** Cloudflare Workers (Pages Functions)
+- **Base de datos:** Cloudflare D1 (SQLite), binding `DB`
+- **Tablas:** `solicitudes` (formulario de contacto), `soporte` (tickets de soporte)
+- **Despliegue:** Cloudflare Pages — las funciones residen en el directorio `functions/api/`
