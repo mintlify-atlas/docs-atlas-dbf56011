@@ -1,0 +1,68 @@
+{
+  "projectType": "saas",
+  "projectName": "ServiTec Pmá",
+  "projectDescription": "ServiTec Pmá is a technical services company in Panama offering electrical installations, automotive mechanics, and web development, with an online service request and admin management platform.",
+  "theme": "almond",
+  "primaryColor": "#1A6FBF",
+  "lightColor": "#E8F1FB",
+  "darkColor": "#0D3D6B",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentacion",
+        "groups": [
+          {
+            "group": "Introduccion",
+            "pages": ["introduction", "como-funciona"]
+          },
+          {
+            "group": "Servicios",
+            "pages": ["servicios/electrico", "servicios/mecanica", "servicios/desarrollo-web"]
+          },
+          {
+            "group": "Proceso",
+            "pages": ["proceso/evaluacion", "proceso/cotizacion", "proceso/ejecucion"]
+          },
+          {
+            "group": "Solicitudes",
+            "pages": ["solicitudes/como-solicitar", "solicitudes/soporte"]
+          },
+          {
+            "group": "Sobre Nosotros",
+            "pages": ["sobre-nosotros/empresa", "sobre-nosotros/fundador"]
+          }
+        ]
+      },
+      {
+        "tab": "Referencia Tecnica",
+        "groups": [
+          {
+            "group": "API",
+            "pages": ["api/overview", "api/submit", "api/login", "api/admin", "api/soporte"]
+          },
+          {
+            "group": "Administracion",
+            "pages": ["admin/panel", "admin/seguridad"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Division Electrica: instalaciones residenciales, mantenimiento, diagnostico y optimizacion electrica",
+    "Division Mecanica: diagnostico automotriz, mantenimiento preventivo, reparaciones y revision tecnica",
+    "Division Desarrollo Web: paginas corporativas, landing pages, formularios con base de datos y despliegue profesional",
+    "Sistema de solicitud de evaluacion tecnica con formulario online",
+    "Panel de administracion para gestionar solicitudes y mensajes de soporte",
+    "API serverless con Cloudflare Workers y base de datos D1",
+    "Tema claro/oscuro con persistencia en localStorage",
+    "Diseno responsive optimizado para movil"
+  ],
+  "publicApiSurface": [
+    "POST /api/submit — Enviar solicitud de evaluacion tecnica",
+    "POST /api/login — Autenticacion del administrador",
+    "GET /api/admin — Listar solicitudes (panel admin)",
+    "POST /api/soporte — Enviar mensaje de soporte",
+    "GET /api/admin-soporte — Listar mensajes de soporte (panel admin)"
+  ]
+}
